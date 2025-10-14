@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>My Web Page</title>
+        <link rel="stylesheet" href="../css/styles.css">
+        <link rel="stylesheet" href="../css/questions.css">
+        <link rel="stylesheet" href="../css/configurations.css">
+    </head>
+    <body>
+        <div class = "clusterNav">
+            <table>
+                <tbody>
+                    <tr>
+                        <td class="instructions">Choose your cluster</td>
+                        <td class="finance"><button name="Finance">Finance</button></td>
+                        <td class="marketing"><button name="Marketing">Marketing</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mainBody">
+            <h1>Practice Exams</h1>
+            <p>Sick and tired of scrolling through your pdf to find the explanation? Sick and tired of answerwrite not showing explanations?</p>
+            <p>Well you're in luck, because this application does that for you</p>
+            <p>Click your cluster in the navigation bar at the top to begin</p>
+            <br>
+            <p><span class="cluster"></span></p>
+            <div class="configuration">
+                <h2>Configurations</h2>
+                <div class="configuration-content">
+                    <div class="exam-selector">
+                        <label for="exams">Select your exam</label>
+                        <select id="exams"></select>
+                        <p>Selected Exam: <span id="selectedExam"></span></p>
+                    </div>
+                    <div class="ia-selector">
+                        <p>Please select IA(s). Select "all" for the all IAs</p>
+                        <p>Selected IA(s): <span id="selectedIAs"></span></p>
+                        <div class="ia-selector-selectors"></div>
+                    </div>
+                </div>
+                <button type="submit" id="getQuestions">Generate questions</button>
+                <p><span id="messages"></span></p>
+            </div>
+            <div class="questions">
+                <h2>Exam</h2>
+                <hr>
+                <div class="questions-content">
+                    <div class = "selections">
+                        <h3>Questions</h3>
+                        <p>
+                            <span id = "question" class="question-text"></span><br>
+                            <button class="answerButton" value="A"></button><br>
+                            <button class="answerButton" value="B"></button><br>
+                            <button class="answerButton" value="C"></button><br>
+                            <button class="answerButton" value="D"></button><br>
+                        </p>
+                    </div>
+                    <div class="data">
+                        <h3>Data</h3>
+                    </div>
+                    <div class="explanations">
+                        <h3>Explanations</h3>
+                        <p>
+                            <span id = "ia" hidden></span><br>
+                            <span id = "specificIA" hidden></span><br>
+                            <span id = "correctAnswer" hidden></span><br>
+                            <span id = "description" hidden></span><br>
+                        </p>
+                    </div>
+                </div>
+                <br>
+                <button id = "prevButton" class = "bottomButtons">previous question</button>
+                <button id = "nextButton" class = "bottomButtons">next question</button>
+            </div>
+        </div>
+    </body>
+    <script src="../javascript/colours.js"></script>
+    <script type = "module" src="../javascript/cluster.js"></script>
+    <script type = "module" src="../javascript/getExams.js"></script>
+    <script type = "module" src="../javascript/getIAs.js"></script>
+    <script type = "module" src="../javascript/getQuestions.js"></script>
+</html>
