@@ -100,9 +100,11 @@ nextButton.addEventListener("click", () => {
     setHTML(++curQuestion);
 });
 previousButton.addEventListener("click", () => {
-    newQuestion();
-    updateAnswerButtons();
-    setHTML(--curQuestion);
+    if (curQuestion > 0){
+        newQuestion();
+        updateAnswerButtons();
+        setHTML(--curQuestion);
+    }
 })
 function setQuestionStatus(questionNum, correct){
     sessionStorage.setItem(questionNum, correct);
