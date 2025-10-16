@@ -46,13 +46,13 @@ getQuestionsButton.addEventListener("click", (e) => {
                 questions = q;
                 curQuestion = 0;
                 newQuestion();
+                updateAnswerButtons();
                 setHTML(curQuestion);
             })
             .catch(e => console.log(e));
         }
 })
 function newQuestion(){ //updates state of answer buttons (dont mind the naming)
-    updateAnswerButtons();
     answers.forEach(a => {
         a.disabled = false;
         a.style.backgroundColor = "rgb(255,255,255)";
@@ -68,6 +68,7 @@ function updateAnswerButtons(){ //respond to clicks on questions a, b, c, d
                 const correct = Array.from(answers).find(a => a.value === questions[curQuestion].correctAnswer);
                 correct.style.backgroundColor = "rgba(135, 224, 139, 1)";
             }
+            setQuestionStatus(curQuestion, e.target.value === questions[curQuestion].correctAnswer); //Saves if user got right or wrong
             changeInformation(false);
             answers.forEach(a => a.disabled = true);
         })
@@ -95,9 +96,17 @@ function changeInformation(hidden){
 }
 nextButton.addEventListener("click", () => {
     newQuestion();
+    updateAnswerButtons();
     setHTML(++curQuestion);
 });
 previousButton.addEventListener("click", () => {
     newQuestion();
+    updateAnswerButtons();
     setHTML(--curQuestion);
 })
+function setQuestionStatus(questionNum, correct){
+    sessionStorage.setItem(questionNum, correct);
+}
+function getQuestionStatus(questionNum){
+    return sessionStorage.getItem(questionNum).correct;
+}
