@@ -6,7 +6,7 @@ const getQuestionsButton = document.getElementById("getQuestions");
 const messages = document.getElementById("messages");
 
 //for display
-const question = document.getElementById("question");
+const questionDisplay = document.getElementById("question");
 const answers = document.querySelectorAll(".answerButton");
 const ia = document.getElementById("ia");
 const specificIA = document.getElementById("specificIA");
@@ -14,7 +14,7 @@ const correctAnswer = document.getElementById("correctAnswer");
 const description = document.getElementById("description");
 const nextButton = document.getElementById("nextButton");
 const previousButton = document.getElementById("prevButton");
-let questions;
+let questions = [];
 let curQuestion = 0;
 
 getQuestionsButton.addEventListener("click", (e) => {
@@ -42,33 +42,42 @@ getQuestionsButton.addEventListener("click", (e) => {
                     messages.innerHTML = "None available";
                     return;
                 }
-                messages.innerHTML = `Questions retrieved ${q.length} (MAX 1000)`;
-                questions = q;
+                messages.innerHTML = `Questions retrieved ${q.length}`;
+                for (const question of q){
+                    const newq = new Question(
+                        question["question"], 
+                        question["answerA"], question["answerB"], question["answerC"], question["answerD"],
+                        question["correctAnswer"],
+                        question["description"],
+                        question["specificIA"],
+                        question["ia"],
+                        question["cluster"]
+                    );
+                    questions.push(newq);
+                }
                 curQuestion = 0;
-                newQuestion();
                 updateAnswerButtons();
                 setHTML(curQuestion);
             })
             .catch(e => console.log(e));
         }
 })
-function newQuestion(){ //updates state of answer buttons (dont mind the naming)
-    answers.forEach(a => {
-        a.disabled = false;
-        a.style.backgroundColor = "rgb(255,255,255)";
-    })
-}
+
 function updateAnswerButtons(){ //respond to clicks on questions a, b, c, d
     answers.forEach(answer => {
+        answer.disabled = false;
+        answer.style.backgroundColor = "rgb(255,255,255)";
         answer.addEventListener("click", (e) => {
-            if (e.target.value === questions[curQuestion].correctAnswer){
+            questions[curQuestion]["questionDone"] = true;
+            questions[curQuestion]["userAnswer"] = e.target.value;
+            const correctAnswer = questions[curQuestion]["correct"];
+            if (e.target.value === correctAnswer){
                 answer.style.backgroundColor = "rgba(135, 224, 139, 1)";
             } else {
                 answer.style.backgroundColor = "rgba(235, 118, 118, 1)";
-                const correct = Array.from(answers).find(a => a.value === questions[curQuestion].correctAnswer);
+                const correct = Array.from(answers).find(a => a.value === correctAnswer);
                 correct.style.backgroundColor = "rgba(135, 224, 139, 1)";
             }
-            setQuestionStatus(curQuestion, e.target.value === questions[curQuestion].correctAnswer); //Saves if user got right or wrong
             changeInformation(false);
             answers.forEach(a => a.disabled = true);
         })
@@ -76,16 +85,16 @@ function updateAnswerButtons(){ //respond to clicks on questions a, b, c, d
 }
 function setHTML(curQuestion){ //dynamically changes html
     console.log(curQuestion);
-    question.innerHTML = "Question: " + questions[curQuestion].question;
+    questionDisplay.innerHTML = "Question: " + questions[curQuestion].question;
+    let cnt = 0;
+    console.log(questions[curQuestion]["answer"]);
     answers.forEach(answer => {
-        let ans = `answer${answer.value}`;
-        console.log(questions[curQuestion][ans]);
-        answer.innerHTML = questions[curQuestion][ans];
+        answer.innerHTML = questions[curQuestion]["answer"][cnt++];
     })
     changeInformation(true);
     ia.innerHTML = "IA: " + questions[curQuestion].ia;
     specificIA.innerHTML = "Specific IA: " + questions[curQuestion].specificIA;
-    correctAnswer.innerHTML = "Correct Answer: " + questions[curQuestion].correctAnswer;
+    correctAnswer.innerHTML = "Correct Answer: " + questions[curQuestion].correct;
     description.innerHTML = "Description: " + questions[curQuestion].description;
 }
 function changeInformation(hidden){
@@ -95,20 +104,63 @@ function changeInformation(hidden){
     description.hidden = hidden;
 }
 nextButton.addEventListener("click", () => {
-    newQuestion();
-    updateAnswerButtons();
+    answers.forEach(a => {
+        a.disabled = true
+        a.style.backgroundColor = "rgba(255, 255, 255, 1)";
+    });
     setHTML(++curQuestion);
+    console.log(questions[curQuestion]);
+    if (questions[curQuestion]["questionDone"]) setInfoIfDone();
+    else updateAnswerButtons();
 });
 previousButton.addEventListener("click", () => {
     if (curQuestion > 0){
-        newQuestion();
-        updateAnswerButtons();
+        answers.forEach(a => {
+            a.disabled = true
+            a.style.backgroundColor = "rgba(255, 255, 255, 1)";
+        });
         setHTML(--curQuestion);
+        setInfoIfDone();
     }
 })
-function setQuestionStatus(questionNum, correct){
-    sessionStorage.setItem(questionNum, correct);
+
+function setInfoIfDone(){
+    const status = questions[curQuestion]["questionDone"];
+    const userAnswer = questions[curQuestion]["userAnswer"];
+    const correctAnswer = questions[curQuestion]["correct"];
+    if (status){
+        if (userAnswer === correctAnswer){
+            for (const answer of answers){
+                if (answer.value === userAnswer){
+                    console.log(answer.value + " " + userAnswer);
+                    answer.style.backgroundColor = "rgba(135, 224, 139, 1)";
+                }
+            }
+        } else {
+            for (const answer of answers){
+                console.log(answer.value + " " + userAnswer + " " + correctAnswer);
+                if (answer.value === correctAnswer) answer.style.backgroundColor = "rgba(135, 224, 139, 1)"; 
+                else if (answer.value === userAnswer) answer.style.backgroundColor = "rgba(235, 118, 118, 1)";
+            }
+        }
+        changeInformation(false);
+    } else {
+        for (const answer of answers){
+            if (answer.value === correctAnswer) answer.style.backgroundColor = "rgb(255,255,255)";
+            answer.disabled = false;
+        }
+    }
 }
-function getQuestionStatus(questionNum){
-    return sessionStorage.getItem(questionNum).correct;
+class Question{
+    constructor(question, a, b, c, d, correct, description, specificIA, ia, cluster){
+        this.question = question;
+        this.answer =[a,b,c,d];
+        this.correct = correct;
+        this.description = description;
+        this.specificIA = specificIA;
+        this.ia = ia;
+        this.cluster = cluster;
+        this.questionDone = false;
+        this.userAnswer = null;
+    }
 }
