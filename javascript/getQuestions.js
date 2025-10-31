@@ -1,6 +1,7 @@
 import { getCluster } from "./cluster.js";
 import { getExamsSelectionValue } from "./getExams.js";
 import { getIAsSelectionValue } from "./getIAs.js";
+import {createIA, updateUserQuestionsData} from "./saveData.js";
 
 const getQuestionsButton = document.getElementById("getQuestions");
 const messages = document.getElementById("messages");
@@ -43,6 +44,7 @@ getQuestionsButton.addEventListener("click", (e) => {
                     return;
                 }
                 messages.innerHTML = `Questions retrieved ${q.length}`;
+                let allIAs = new Set();
                 for (const question of q){
                     const newq = new Question(
                         question["question"], 
@@ -54,7 +56,12 @@ getQuestionsButton.addEventListener("click", (e) => {
                         question["cluster"]
                     );
                     questions.push(newq);
+                    allIAs.add(question["ia"]);
                 }
+                allIAs.forEach(individualIA => {
+                    createIA(individualIA, 0, 0);
+                })
+                updateUserQuestionsData();
                 curQuestion = 0;
                 updateAnswerButtons();
                 setHTML(curQuestion);
@@ -63,24 +70,30 @@ getQuestionsButton.addEventListener("click", (e) => {
         }
 })
 
+function handleAnswerClick(e) {
+    questions[curQuestion]["questionDone"] = true;
+    questions[curQuestion]["userAnswer"] = e.target.value;
+    const correctAnswer = questions[curQuestion]["correct"];
+    const questionIA = questions[curQuestion]["ia"];
+    if (e.target.value === correctAnswer){
+        e.target.style.backgroundColor = "rgba(135, 224, 139, 1)";
+        updateUserQuestionsData(questionIA, 1);
+    } else {
+        e.target.style.backgroundColor = "rgba(235, 118, 118, 1)";
+        const correct = Array.from(answers).find(a => a.value === correctAnswer);
+        correct.style.backgroundColor = "rgba(135, 224, 139, 1)";
+        updateUserQuestionsData(questionIA, 0);
+    }
+    changeInformation(false);
+    answers.forEach(a => a.disabled = true);
+}
+
 function updateAnswerButtons(){ //respond to clicks on questions a, b, c, d
     answers.forEach(answer => {
+        answer.removeEventListener("click", handleAnswerClick);
         answer.disabled = false;
         answer.style.backgroundColor = "rgb(255,255,255)";
-        answer.addEventListener("click", (e) => {
-            questions[curQuestion]["questionDone"] = true;
-            questions[curQuestion]["userAnswer"] = e.target.value;
-            const correctAnswer = questions[curQuestion]["correct"];
-            if (e.target.value === correctAnswer){
-                answer.style.backgroundColor = "rgba(135, 224, 139, 1)";
-            } else {
-                answer.style.backgroundColor = "rgba(235, 118, 118, 1)";
-                const correct = Array.from(answers).find(a => a.value === correctAnswer);
-                correct.style.backgroundColor = "rgba(135, 224, 139, 1)";
-            }
-            changeInformation(false);
-            answers.forEach(a => a.disabled = true);
-        })
+        answer.addEventListener("click", handleAnswerClick);
     });
 }
 function setHTML(curQuestion){ //dynamically changes html

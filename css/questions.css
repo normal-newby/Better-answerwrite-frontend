@@ -1,5 +1,5 @@
 .questions{
-    width: 60%;
+    width: 70%;
     margin: auto;
     margin-bottom: 50px;
     padding: 10px;
@@ -38,6 +38,13 @@
 }
 .data{
     grid-area: data;
+}
+.data-information{
+    padding: 0px;
+    text-align: left;
+}
+.data-information > p{
+    margin-top: 5px;
 }
 .explanations{
     grid-area: explanations;
