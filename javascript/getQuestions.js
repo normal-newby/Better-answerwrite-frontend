@@ -101,6 +101,7 @@ function setHTML(curQuestion){ //dynamically changes html
     questionDisplay.innerHTML = "Question: " + questions[curQuestion].question;
     let cnt = 0;
     console.log(questions[curQuestion]["answer"]);
+
     answers.forEach(answer => {
         answer.innerHTML = questions[curQuestion]["answer"][cnt++];
     })
